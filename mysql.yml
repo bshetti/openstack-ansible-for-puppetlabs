@@ -30,6 +30,11 @@
       section: mysqld
       option: binlog_do_db
       value: example
+  - name: comment out bind_address
+    lineinfile: dest=/etc/my.cnf 
+                regexp='bind_address' 
+                line='#bind_address={{ ansible_eth0.ipv4.address }}'
+                state=present
   - name: add replication user
     mysql_user:
       name: replicator
