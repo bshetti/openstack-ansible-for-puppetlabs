@@ -24,47 +24,23 @@
       section: mysqld
       option: log_bin_index
       value: /var/log/mariadb/mariadb-bin.index
-  - name: configure to replicate cinder database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: cinder
-  - name: configure to replicate glance database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: glance
-  - name: configure to replicate heat database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: heat
-  - name: configure to replicate keystone database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: keystone
-  - name: configure to replicate neutron database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: neutron
-  - name: configure to replicate nova database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: nova
+  - name: configure to replicate databases
+    lineinfile: dest=/etc/my.cnf 
+                insertafter='binlog_do_db'
+                line="{{ item.line }}"
+                state=present
+    with_items:
+      - { line: 'binlog_do_db=glance' }
+      - { line: 'binlog_do_db=keystone' }
+      - { line: 'binlog_do_db=cinder' }
+      - { line: 'binlog_do_db=neutron' }
+      - { line: 'binlog_do_db=nova'}
+      - { line: 'binlog_do_db=heat'}
   - name: comment out bind_address
     lineinfile: dest=/etc/my.cnf 
                 regexp='bind_address' 
                 line='#bind_address={{ ansible_eth0.ipv4.address }}'
-                state=present
+                state=absent
   - name: add replication user
     mysql_user:
       name: replicator
@@ -103,42 +79,18 @@
       section: mysqld
       option: log_bin_index
       value: /var/log/mariadb/mariadb-bin.index
-  - name: configure to replicate cinder database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: cinder
-  - name: configure to replicate glance database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: glance
-  - name: configure to replicate heat database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: heat
-  - name: configure to replicate keystone database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: keystone
-  - name: configure to replicate neutron database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: neutron
-  - name: configure to replicate nova database
-    ini_file: 
-      dest: /etc/my.cnf
-      section: mysqld
-      option: binlog_do_db
-      value: nova
+  - name: configure to replicate databases
+    lineinfile: dest=/etc/my.cnf 
+                insertafter='binlog_do_db'
+                line="{{ item.line }}"
+                state=present
+    with_items:
+      - { line: 'binlog_do_db=glance' }
+      - { line: 'binlog_do_db=keystone' }
+      - { line: 'binlog_do_db=cinder' }
+      - { line: 'binlog_do_db=neutron' }
+      - { line: 'binlog_do_db=nova'}
+      - { line: 'binlog_do_db=heat'}
   - name: comment out bind_address
     lineinfile: dest=/etc/my.cnf 
                 regexp='bind_address' 
