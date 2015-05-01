@@ -1,5 +1,5 @@
 ---
-- hosts: openstack
+- hosts: openstack[0]
 
   tasks:
   #install python-mysqldb
@@ -11,7 +11,7 @@
       dest: /etc/my.cnf
       section: mysqld
       option: server-id
-      value: 1
+      value: 101
   - name: add binary log path
     ini_file: 
       dest: /etc/my.cnf
@@ -24,12 +24,42 @@
       section: mysqld
       option: log_bin_index
       value: /var/log/mariadb/mariadb-bin.index
-  - name: add database list
+  - name: configure to replicate cinder database
     ini_file: 
       dest: /etc/my.cnf
       section: mysqld
       option: binlog_do_db
-      value: example
+      value: cinder
+  - name: configure to replicate glance database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: glance
+  - name: configure to replicate heat database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: heat
+  - name: configure to replicate keystone database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: keystone
+  - name: configure to replicate neutron database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: neutron
+  - name: configure to replicate nova database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: nova
   - name: comment out bind_address
     lineinfile: dest=/etc/my.cnf 
                 regexp='bind_address' 
@@ -42,3 +72,87 @@
       host: "%"
       priv: "*.*:REPLICATION SLAVE"
       state: present
+  - name: restart_mariadb
+    service:
+      name: mariadb
+      state: restarted
+
+
+- hosts: openstack[1]
+
+  tasks:
+  #install python-mysqldb
+  - name: install MySQL-python
+    yum: name=MySQL-python state=present
+
+  - name: add mysql server-id
+    ini_file:
+      dest: /etc/my.cnf
+      section: mysqld
+      option: server-id
+      value: 201
+  - name: add binary log path
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: log_bin
+      value: /var/log/mariadb/mariadb-bin.log
+  - name: add binary log index path
+    ini_file:
+      dest: /etc/my.cnf
+      section: mysqld
+      option: log_bin_index
+      value: /var/log/mariadb/mariadb-bin.index
+  - name: configure to replicate cinder database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: cinder
+  - name: configure to replicate glance database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: glance
+  - name: configure to replicate heat database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: heat
+  - name: configure to replicate keystone database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: keystone
+  - name: configure to replicate neutron database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: neutron
+  - name: configure to replicate nova database
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: nova
+  - name: comment out bind_address
+    lineinfile: dest=/etc/my.cnf 
+                regexp='bind_address' 
+                line='#bind_address={{ ansible_eth0.ipv4.address }}'
+                state=present
+  - name: add replication user
+    mysql_user:
+      name: replicator
+      password: password
+      host: "%"
+      priv: "*.*:REPLICATION SLAVE"
+      state: present
+
+  - name: restart_mariadb
+    service:
+      name: mariadb
+      state: restarted
