@@ -24,6 +24,12 @@
       section: mysqld
       option: log_bin_index
       value: /var/log/mariadb/mariadb-bin.index
+  - name: add database list
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: example
   - name: configure to replicate databases
     lineinfile: dest=/etc/my.cnf 
                 insertafter='binlog_do_db'
@@ -79,6 +85,12 @@
       section: mysqld
       option: log_bin_index
       value: /var/log/mariadb/mariadb-bin.index
+  - name: add database list
+    ini_file: 
+      dest: /etc/my.cnf
+      section: mysqld
+      option: binlog_do_db
+      value: example
   - name: configure to replicate databases
     lineinfile: dest=/etc/my.cnf 
                 insertafter='binlog_do_db'
